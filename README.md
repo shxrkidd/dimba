@@ -69,7 +69,27 @@ To run this project, you need to have Python installed along with the following 
 
 This project uses [JAX](https://github.com/google/jax) for machine learning.
 
-Install with:
-```
-pip install jax jaxlib flax optax
-```
+## Data Providers
+
+This project uses the following free football data sources:
+
+- [StatsBomb](https://statsbomb.com/)
+- [FBref](https://fbref.com/)
+- [Club Elo](https://clubelo.com/)
+- [FiveThirtyEight](https://projects.fivethirtyeight.com/soccer-predictions/)
+- [Understat](https://understat.com/)
+
+These sources provide a wide range of football statistics and predictions, which are used for model training and evaluation in this project.
+
+## Commercial Data Providers
+
+If you would like to use paid or commercial data providers, this project can be adapted to work with APIs such as:
+
+- [Second Spectrum](https://www.secondspectrum.com/)
+- [StatsPerform (Opta)](https://www.statsperform.com/)
+- [Metrica Sports](https://metrica-sports.com/)
+- [Signality](https://signality.com/)
+- [Sportradar](https://sportradar.com/)
+- [Bet365](https://www.bet365.com/) / [Betfair](https://www.betfair.com/) APIs
+
+These providers offer advanced, real-time, and proprietary football data for professional and commercial use.
