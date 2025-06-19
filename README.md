@@ -93,3 +93,65 @@ If you would like to use paid or commercial data providers, this project can be 
 - [Bet365](https://www.bet365.com/) / [Betfair](https://www.betfair.com/) APIs
 
 These providers offer advanced, real-time, and proprietary football data for professional and commercial use.
+
+# Football Predictor Project
+
+This project uses **Club Elo**, **FiveThirtyEight**, and **StatsBomb** as free, automatic data sources for football match data and predictions.  
+No manual filtering is required—data is fetched and processed automatically.
+
+---
+
+## 📊 Data Providers
+
+- [Club Elo](http://clubelo.com/) — Historical and current club ratings and match results (CSV).
+- [FiveThirtyEight](https://projects.fivethirtyeight.com/soccer-predictions/) — Club soccer predictions and match data (CSV).
+- [StatsBomb Open Data](https://github.com/statsbomb/open-data) — Detailed match event data (JSON).
+
+---
+
+## 🚀 Automatic Data Fetching
+
+The project includes scripts to automatically fetch **all competitions and matches** from these providers, so you always have up-to-date and comprehensive data.
+
+### Example Data Fetching Code
+
+```python
+# Club Elo
+import pandas as pd
+elo_matches = pd.read_csv("http://api.clubelo.com/fixtures")
+
+# FiveThirtyEight
+fivethirtyeight_matches = pd.read_csv("https://projects.fivethirtyeight.com/soccer-api/club/spi_matches.csv")
+
+# StatsBomb
+import requests
+comps_url = "https://raw.githubusercontent.com/statsbomb/open-data/master/data/competitions.json"
+competitions = requests.get(comps_url).json()
+all_matches = []
+for comp in competitions:
+    comp_id = comp['competition_id']
+    season_id = comp['season_id']
+    matches_url = f"https://raw.githubusercontent.com/statsbomb/open-data/master/data/matches/{comp_id}/{season_id}.json"
+    matches = requests.get(matches_url).json()
+    all_matches.extend(matches)
+```
+
+---
+
+## 🛠️ Requirements
+
+- Python 3.7+
+- pandas
+- requests
+
+Install requirements with:
+```
+pip install pandas requests
+```
+
+---
+
+## ⚡ Usage
+
+1. Clone this repository.
+2. Run the data fetching scripts to download and process all match data.
