@@ -59,4 +59,17 @@ To run this project, you need to have Python installed along with the following 
   - [tensorflow](https://www.tensorflow.org/)
   - [colorama](https://pypi.org/project/colorama/)
 
----
+## Python Version Compatibility
+
+> **Note:** TensorFlow does **not** currently support Python 3.13 or above.  
+> If you need to use TensorFlow, please use Python 3.7–3.11.  
+> For Python 3.13, consider using alternative machine learning libraries such as **PyTorch** or **scikit-learn**.
+
+## JAX Setup
+
+This project uses [JAX](https://github.com/google/jax) for machine learning.
+
+Install with:
+```
+pip install jax jaxlib flax optax
+```
