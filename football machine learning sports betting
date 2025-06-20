@@ -1,0 +1,30 @@
+# ...existing code...
+import jax.numpy as jnp
+
+# After you have a cleaned pandas DataFrame 'df'
+features = jnp.array(df[["feature1", "feature2", "feature3"]].values)  # <-- Add here
+labels = jnp.array(df["label"].values)                                 # <-- Add here
+# ...existing code...
+# ...existing code...
+import jax
+
+def predict(params, x):
+    return jnp.dot(x, params["weights"]) + params["bias"]
+
+def loss_fn(params, x, y):
+    preds = predict(params, x)
+    return jnp.mean((preds - y) ** 2)
+
+# Initialize parameters
+params = {
+    "weights": jnp.zeros(features.shape[1]),  # <-- Add here
+    "bias": 0.0
+}
+
+# Compute gradients (for training)
+grads = jax.grad(loss_fn)(params, features, labels)  # <-- Add here
+# ..# ...existing code...
+# When you want to predict new matches:
+new_features = jnp.array(new_df[["feature1", "feature2", "feature3"]].values)  # <-- Add here
+predictions = predict(params, new_features)                                    # <-- Add here
+# ...existing code....existing code...
