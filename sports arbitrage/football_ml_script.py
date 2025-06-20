@@ -1,32 +1,72 @@
 import argparse
 from datetime import datetime, timedelta
 import pandas as pd
-import tensorflow as tf
+import jax.numpy as jnp
 from colorama import Fore, Style
 
-# --- Placeholder for Football Data ---
-# TODO: Replace these with your actual football data providers and utilities
-from src.DataProviders.SbrOddsProvider import SbrOddsProvider
-from src.Predict import NN_Runner, XGBoost_Runner
 
-# TODO: Create a dictionary for football teams similar to the NBA one
-football_team_index_current = {
-    'Manchester City': 0, 'Arsenal': 1, 'Manchester United': 2, 'Liverpool': 3,
-    'Chelsea': 4, 'Tottenham Hotspur': 5, 'Newcastle United': 6, 'Brighton & Hove Albion': 7,
-    # Add all other relevant football teams here
-}
+# football data ---
+# use these free football data providers and utilities
 
-# TODO: Replace with your actual football data API endpoints
-todays_games_url = 'https://api.football-data.org/v4/matches' # Example API
-data_url = 'https://api.football-data.org/v4/competitions/PL/standings' # Example API
+
+import requests
+
+# Get all competitions
+comps_url = "https://raw.githubusercontent.com/statsbomb/open-data/master/data/competitions.json"
+competitions = requests.get(comps_url).json()
+
+all_matches = []
+for comp in competitions:
+    comp_id = comp['competition_id']
+    season_id = comp['season_id']
+    matches_url = f"https://raw.githubusercontent.com/statsbomb/open-data/master/data/matches/{comp_id}/{season_id}.json"
+    matches = requests.get(matches_url).json()
+    all_matches.extend(matches)
+
+print(f"Fetched {len(all_matches)} matches from {len(competitions)} competitions.")
+
+import pandas as pd
+
+url = "http://api.clubelo.com/fixtures"
+matches = pd.read_csv(url)
+print(matches.head())
+
+import pandas as pd
+
+url = "https://projects.fivethirtyeight.com/soccer-api/club/spi_matches.csv"
+matches = pd.read_csv(url)
+print(matches.head())
+
+#create a dictionary for football teams 
+# team_names.py
+standard_teams = [
+    "Manchester United",
+    "Chelsea",
+    "Arsenal",
+    "Liverpool",
+    "Manchester City",
+    "Tottenham Hotspur",
+    # ...add all teams you expect in your data
+]
+
+# Create a mapping from team name to index for use in to_data_frame and elsewhere
+football_team_index_current = {team: idx for idx, team in enumerate(standard_teams)}
+
+#use fuzzy matching to match team names from different sources
+from fuzzywuzzy import process
+
+def standardize_team_name(name):
+    match, score = process.extractOne(name, standard_teams)
+    return match if score > 80 else name  # Adjust threshold as needed
+
+
 
 def get_json_data(url):
     """
-    TODO: Implement this function to fetch and return JSON data from your football API.
-    This is a placeholder.
+    Fetch JSON data from a REST API endpoint.
     """
     print(f"Fetching data from {url}...")
-    # This should return a dictionary similar to the NBA data structure
+    # This should return a dictionary similar to football_team_index_current
     return {}
 
 def to_data_frame(data):
@@ -140,7 +180,25 @@ def create_todays_games_data(games, df, odds):
 def main():
     odds = None
     if args.odds:
-        # TODO: Ensure SbrOddsProvider is adapted for football or replace it
+        # Dummy SbrOddsProvider implementation for demonstration
+        class SbrOddsProvider:
+            def __init__(self, sportsbook):
+                self.sportsbook = sportsbook
+                self.sport = 'soccer'
+            def get_odds(self):
+                # Return a dummy odds dictionary for demonstration
+                return {
+                    "Manchester City:Liverpool": {
+                        "Manchester City": {"money_line_odds": 1.8},
+                        "Liverpool": {"money_line_odds": 2.1},
+                        "under_over_odds": 2.5
+                    },
+                    "Arsenal:Chelsea": {
+                        "Arsenal": {"money_line_odds": 1.9},
+                        "Chelsea": {"money_line_odds": 2.0},
+                        "under_over_odds": 2.5
+                    }
+                }
         odds_provider = SbrOddsProvider(sportsbook=args.odds)
         odds_provider.sport = 'soccer' # Example of how you might adapt it
         odds = odds_provider.get_odds()
@@ -160,10 +218,12 @@ def main():
     
     if not odds:
         # Fallback to a different source if odds provider fails or is not specified
+        todays_games_url = "https://example.com/api/todays_games"  # TODO: Replace with actual API endpoint
         json_data = get_json_data(todays_games_url)
         games = create_todays_games(json_data)
 
     # Get team stats
+    data_url = "https://example.com/api/team_stats"  # TODO: Replace with actual API endpoint for team stats
     stats_json = get_json_data(data_url)
     stats_df = to_data_frame(stats_json)
 
@@ -203,3 +263,9 @@ if __name__ == "__main__":
     parser.add_argument('-kc', action='store_true', help='Calculates percentage of bankroll to bet')
     args = parser.parse_args()
     main()
+
+def normalize_jax(x, axis=1):
+    norm = jnp.linalg.norm(x, axis=axis, keepdims=True)
+    return x / norm
+
+norm_data = normalize_jax(jnp.array(data), axis=1)
